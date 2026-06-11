@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Virtual Environment
+venv/
+.venv/
+
+# Playwright
+playwright-report/
+test-results/
+
+# Allure
+allure-report/
+allure-results/
+
+# Reports
+reports/
+report.html
+
+# Screenshots
+screenshots/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment files
+.env
