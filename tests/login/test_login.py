@@ -3,7 +3,11 @@ from pages.dashboard_page import DashboardPage
 from test_data.test_data import USERNAME, PASSWORD
 from config.config import LOGIN_URL, DASHBOARD_URL
 
+import pytest
 
+@pytest.mark.smoke
+@pytest.mark.sanity
+@pytest.mark.regression
 def test_TC_01_valid_login(page):
 
     # Step 1: Open login page

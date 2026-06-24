@@ -3,7 +3,10 @@ from test_data.test_data import USERNAME, PASSWORD
 from pages.login_page import LoginPage
 from pages.dashboard_page import DashboardPage
 
+import pytest
 
+@pytest.mark.sanity
+@pytest.mark.regression
 def test_TC_31_model_details_responsiveness(page):
 
     # Open login page

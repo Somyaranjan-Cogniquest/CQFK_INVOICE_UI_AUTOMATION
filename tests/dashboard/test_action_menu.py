@@ -3,7 +3,10 @@ from pages.dashboard_page import DashboardPage
 from test_data.test_data import USERNAME, PASSWORD
 from config.config import LOGIN_URL
 
+import pytest
 
+@pytest.mark.sanity
+@pytest.mark.regression
 def test_TC_14_verify_action_menu(page):
 
     page.goto(LOGIN_URL)

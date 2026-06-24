@@ -2,7 +2,9 @@ from pages.login_page import LoginPage
 from config.config import LOGIN_URL
 from test_data.test_data import USERNAME, PASSWORD
 
+import pytest
 
+@pytest.mark.regression
 def test_TC_17_trim_whitespace_in_username(page):
 
     page.goto(LOGIN_URL)

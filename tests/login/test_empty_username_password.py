@@ -1,6 +1,10 @@
 from config.config import LOGIN_URL
 from locators.login_locators import LoginLocators
 
+import pytest
+
+@pytest.mark.sanity
+@pytest.mark.regression
 def test_TC_06_empty_username_password(page):
 
     page.goto(LOGIN_URL)

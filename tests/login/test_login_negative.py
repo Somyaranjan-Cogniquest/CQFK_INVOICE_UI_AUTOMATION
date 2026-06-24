@@ -2,6 +2,10 @@ from pages.login_page import LoginPage
 from test_data.test_data import USERNAME
 from config.config import LOGIN_URL
 
+import pytest
+
+@pytest.mark.sanity
+@pytest.mark.regression
 def test_TC_02_invalid_password(page):
 
     page.goto(LOGIN_URL)
@@ -13,6 +17,9 @@ def test_TC_02_invalid_password(page):
     login.click_login()
 
     error_msg = page.get_by_role("alert")
+
     error_msg.wait_for(timeout=5000)
 
-    assert "Invalid credentials" in error_msg.inner_text()
+    assert "Invalid username or password" in error_msg.inner_text()
+
+    print("PASS : Proper error message displayed")

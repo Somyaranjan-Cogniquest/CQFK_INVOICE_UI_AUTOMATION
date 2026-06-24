@@ -3,7 +3,10 @@ from pages.dashboard_page import DashboardPage
 from test_data.test_data import USERNAME, PASSWORD
 from config.config import LOGIN_URL
 
+import pytest
 
+@pytest.mark.sanity
+@pytest.mark.regression
 def test_TC_13_verify_sorting_on_columns(page):
 
     # Login

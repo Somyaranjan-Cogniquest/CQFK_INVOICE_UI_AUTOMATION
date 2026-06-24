@@ -3,7 +3,10 @@ from pages.dashboard_page import DashboardPage
 from config.config import LOGIN_URL, DASHBOARD_URL
 from test_data.test_data import USERNAME, PASSWORD
 
+import pytest
 
+@pytest.mark.sanity
+@pytest.mark.regression
 def test_TC_11_verify_model_table_headers(page):
 
     page.goto(LOGIN_URL)

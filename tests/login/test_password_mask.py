@@ -1,5 +1,8 @@
 from config.config import LOGIN_URL
 
+import pytest
+
+@pytest.mark.regression
 def test_TC_07_password_mask(page):
 
     page.goto(LOGIN_URL)

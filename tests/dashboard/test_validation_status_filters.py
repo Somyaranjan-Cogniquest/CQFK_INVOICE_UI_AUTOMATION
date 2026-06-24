@@ -3,7 +3,10 @@ from test_data.test_data import USERNAME, PASSWORD
 from pages.login_page import LoginPage
 from pages.dashboard_page import DashboardPage
 
+import pytest
 
+@pytest.mark.sanity
+@pytest.mark.regression
 def test_TC_35_color_status_filters(page):
 
     page.goto(LOGIN_URL)

@@ -3,7 +3,10 @@ from pages.dashboard_page import DashboardPage
 from config.config import LOGIN_URL
 from test_data.test_data import USERNAME, PASSWORD
 
+import pytest
 
+@pytest.mark.smoke
+@pytest.mark.regression
 def test_TC_12_verify_model_names_are_clickable(page):
 
     # Login

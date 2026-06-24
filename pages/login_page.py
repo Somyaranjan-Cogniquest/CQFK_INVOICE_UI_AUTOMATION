@@ -18,3 +18,6 @@ class LoginPage:
         self.enter_username(username)
         self.enter_password(password)
         self.click_login()
+
+    # Wait until dashboard loads
+        self.page.wait_for_load_state("networkidle")    

@@ -3,7 +3,10 @@ from test_data.test_data import USERNAME, PASSWORD
 from pages.login_page import LoginPage
 from pages.dashboard_page import DashboardPage
 
+import pytest
 
+@pytest.mark.smoke
+@pytest.mark.regression
 def test_TC_25_verify_navigation_to_model_details_page(page):
 
     page.goto(LOGIN_URL)

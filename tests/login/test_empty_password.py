@@ -2,6 +2,10 @@ from pages.login_page import LoginPage
 from config.config import LOGIN_URL
 from test_data.test_data import USERNAME
 
+import pytest
+
+@pytest.mark.sanity
+@pytest.mark.regression
 def test_TC_05_empty_password(page):
 
     # Open Login Page

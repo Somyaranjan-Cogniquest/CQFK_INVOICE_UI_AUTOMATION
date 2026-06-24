@@ -23,9 +23,6 @@ class DashboardPage:
     # TABLE HEADERS
     # ---------------------------
 
-    def get_table_headers(self):
-        return self.page.locator(DashboardLocators.TABLE_HEADERS)
-
     def get_header_text_list(self):
         self.page.wait_for_load_state("networkidle")
         self.page.wait_for_selector("th", timeout=20000)
@@ -40,8 +37,16 @@ class DashboardPage:
     # ---------------------------
 
     def click_model_name(self):
-        self.page.locator(DashboardLocators.MODEL_NAME_LINK).wait_for(state="visible")
-        self.page.locator(DashboardLocators.MODEL_NAME_LINK).click()
+
+        model = self.page.locator(
+            DashboardLocators.MODEL_NAME_LINK
+        )
+
+        model.wait_for(state="visible")
+
+        model.click()
+
+        self.page.wait_for_load_state("networkidle")
 
     def click_model_id_header(self):
         self.page.locator(DashboardLocators.MODEL_ID_HEADER).click()
@@ -72,10 +77,29 @@ class DashboardPage:
         self.page.locator(DashboardLocators.TAAS_MODEL).click()
 
     def click_taas(self):
-        self.page.locator("text=TAAS").first.click()
+
+        taas = self.page.locator(
+           "text=TAAS"
+        ).first
+
+        taas.wait_for(state="visible")
+
+        taas.click()
+
+        self.page.wait_for_load_state("networkidle")
+
 
     def click_taas_luy(self):
-        self.page.locator("text=TAAS (LUY)").click()
+
+        taas_luy = self.page.locator(
+            "text=TAAS (LUY)"
+        )
+
+        taas_luy.wait_for(state="visible")
+
+        taas_luy.click()
+
+        self.page.wait_for_load_state("networkidle")
 
     # ---------------------------
     # CONFIGURE MODEL
@@ -105,7 +129,16 @@ class DashboardPage:
         return self.page.locator(DashboardLocators.PROCESSING_DASHBOARD).first.is_enabled()
 
     def click_processing_dashboard(self):
-        self.page.locator(DashboardLocators.PROCESSING_DASHBOARD).first.click()
+
+        processing = self.page.locator(
+            DashboardLocators.PROCESSING_DASHBOARD
+        ).first
+
+        processing.wait_for(state="visible")
+
+        processing.click()
+
+        self.page.wait_for_load_state("networkidle")
 
     # ---------------------------
     # DOCUMENT ANALYTICS
@@ -141,13 +174,7 @@ class DashboardPage:
            status_list.append(status.strip().lower())
 
         return status_list
-    def get_total_documents_count(self):
-        return int(
-            self.page.locator("div:text('Total Documents')")
-            .locator("xpath=following-sibling::div")
-            .inner_text()
-            .strip()
-        )
+    
     def get_processed_count(self):
         return int(
             self.page.locator("p:has-text('Processed')")
@@ -196,16 +223,7 @@ class DashboardPage:
         print("Total Documents =", value.inner_text())
 
         return int(value.inner_text().strip())
-    def get_processed_count(self):
-        return int(
-            self.page.locator("p:has-text('Processed') + p").first.inner_text()
-        )
-
-
-    def get_unprocessed_count(self):
-        return int(
-            self.page.locator("p:has-text('Unprocessed') + p").first.inner_text()
-        )
+    
     # Validation Status Dropdown
     def open_color_status_dropdown(self):
         self.page.locator("#color-status-select").click()
@@ -230,11 +248,18 @@ class DashboardPage:
     # search_functionality
     # ---------------------------
     def search_document(self, value):
-        search_box = self.page.locator("input[placeholder='Type to search...']")
-        search_box.fill("")
-        search_box.fill(value)
-        self.page.wait_for_timeout(2000)
 
+        search_box = self.page.locator(
+            "input[placeholder='Type to search...']"
+        )
+
+        search_box.wait_for(state="visible")
+
+        search_box.fill("")
+
+        search_box.fill(value)
+
+        self.page.wait_for_load_state("networkidle")
 
     def get_first_doc_id(self):
         return (
@@ -255,6 +280,35 @@ class DashboardPage:
             .nth(2)
             .inner_text()
             .strip()
+        )
+    # ---------------------------
+# COMMON WAITS
+# ---------------------------
+
+    def wait_for_table(self):
+
+        self.page.locator(
+            "table tbody tr"
+        ).first.wait_for(
+        state="visible",
+        timeout=30000
+        )
+
+
+    def wait_for_loader_to_disappear(self):
+
+        self.page.wait_for_load_state(
+            "networkidle"
+        )
+
+
+    def wait_for_search_results(self):
+
+        self.page.locator(
+            "table tbody tr"
+        ).first.wait_for(
+            state="visible",
+            timeout=30000
         )
 
 

@@ -1,7 +1,10 @@
 from pages.login_page import LoginPage
 from config.config import LOGIN_URL
 from test_data.test_data import USERNAME, PASSWORD
+import pytest
 
+@pytest.mark.sanity
+@pytest.mark.regression
 def test_TC_18_password_field_paste_allowed(page):
 
     # Open Login Page
