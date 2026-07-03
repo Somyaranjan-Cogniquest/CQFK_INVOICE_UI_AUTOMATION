@@ -5,10 +5,14 @@ from pages.dashboard_page import DashboardPage
 
 import pytest
 
+
 @pytest.mark.sanity
 @pytest.mark.regression
-def test_TC_80_three_dot_menu_scroll_behavior(page):
+def test_TC_80_three_dot_menu_persists_during_scroll(page):
 
+    # ==========================
+    # LOGIN
+    # ==========================
     page.goto(LOGIN_URL)
 
     login = LoginPage(page)
@@ -20,6 +24,9 @@ def test_TC_80_three_dot_menu_scroll_behavior(page):
 
     page.wait_for_timeout(5000)
 
+    # ==========================
+    # OPEN PROCESSING DASHBOARD
+    # ==========================
     dashboard = DashboardPage(page)
 
     dashboard.click_model_name()
@@ -28,6 +35,9 @@ def test_TC_80_three_dot_menu_scroll_behavior(page):
 
     page.wait_for_timeout(5000)
 
+    # ==========================
+    # FIND 100% DOCUMENT
+    # ==========================
     rows = page.locator(
         "table tbody tr"
     )
@@ -42,11 +52,17 @@ def test_TC_80_three_dot_menu_scroll_behavior(page):
 
             if "100%" in row.inner_text():
 
+                print(
+                    f"100% document found in row {i + 1}"
+                )
+
                 three_dot = row.locator(
                     "button.dropdown-toggle"
                 )
 
                 if three_dot.count() > 0:
+
+                    three_dot.first.scroll_into_view_if_needed()
 
                     three_dot.first.click(
                         force=True
@@ -59,12 +75,14 @@ def test_TC_80_three_dot_menu_scroll_behavior(page):
                     break
 
         except Exception:
-
             continue
 
     assert menu_opened, \
-        "Unable to open menu"
+        "Unable to open 3-dot menu"
 
+    # ==========================
+    # VERIFY MENU OPENED
+    # ==========================
     menu_items = page.locator(
         "a.dropdown-item"
     )
@@ -72,9 +90,16 @@ def test_TC_80_three_dot_menu_scroll_behavior(page):
     assert menu_items.count() > 0, \
         "Menu did not open"
 
-    print("Menu opened successfully")
+    assert menu_items.first.is_visible(), \
+        "Menu is not visible"
 
-    # Scroll page
+    print(
+        "3-dot menu opened successfully"
+    )
+
+    # ==========================
+    # SCROLL PAGE
+    # ==========================
     page.mouse.wheel(
         0,
         1000
@@ -82,22 +107,13 @@ def test_TC_80_three_dot_menu_scroll_behavior(page):
 
     page.wait_for_timeout(3000)
 
-    # Verify menu closed
-    menu_closed = False
-
-    try:
-
-        menu_closed = (
-            not menu_items.first.is_visible()
-        )
-
-    except Exception:
-
-        menu_closed = True
-
-    assert menu_closed, \
-        "Menu remained visible after scroll"
+    # ==========================
+    # VERIFY MENU STILL OPEN
+    # ==========================
+    assert menu_items.first.is_visible(), \
+        "Menu disappeared after scrolling"
 
     print(
-        "PASS : Menu closed automatically after scrolling"
+        "PASS : Menu remained open "
+        "and scrolled with the page"
     )

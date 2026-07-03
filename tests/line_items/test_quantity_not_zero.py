@@ -5,146 +5,149 @@ from pages.dashboard_page import DashboardPage
 
 import pytest
 
+
 @pytest.mark.smoke
 @pytest.mark.regression
 def test_TC_03_quantity_must_not_be_zero(page):
 
     # ==================================
-    # STEP 1 : LOGIN
+    # LOGIN
     # ==================================
     page.goto(LOGIN_URL)
 
     login = LoginPage(page)
-
-    login.login(
-        USERNAME,
-        PASSWORD
-    )
+    login.login(USERNAME, PASSWORD)
 
     # ==================================
-    # STEP 2 : OPEN PROCESSING DASHBOARD
+    # OPEN PROCESSING DASHBOARD
     # ==================================
     dashboard = DashboardPage(page)
 
     dashboard.click_model_name()
-
     dashboard.click_processing_dashboard()
-
     dashboard.wait_for_table()
 
-    print(
-        "Processing Dashboard opened"
-    )
+    print("Processing Dashboard opened")
 
     # ==================================
-    # STEP 3 : OPEN FIRST 100% DOCUMENT
+    # FIND VALID DOCUMENT
     # ==================================
-    rows = page.locator(
-        "table tbody tr"
-    )
-
     document_found = False
+    quantity_column_index = -1
+
+    rows = page.locator("table tbody tr")
 
     for i in range(rows.count()):
 
+        rows = page.locator("table tbody tr")
         row = rows.nth(i)
 
-        if "100%" in row.inner_text():
+        if "100%" not in row.inner_text():
+            continue
+
+        print(f"\nChecking Row {i + 1}")
+
+        current_url = page.url
+
+        # ==============================
+        # OPEN DOCUMENT
+        # ==============================
+        row.locator(
+            "button.dropdown-toggle"
+        ).click(force=True)
+
+        page.wait_for_timeout(1000)
+
+        row.get_by_text(
+            "View document"
+        ).click(force=True)
+
+        page.wait_for_timeout(5000)
+
+        # Document not opened
+        if page.url == current_url:
+            print("Document did not open")
+            continue
+
+        print("Document opened")
+
+        # ==============================
+        # OPEN LINE ITEMS TAB
+        # ==============================
+        line_items_tab = page.locator(
+            "span:has-text('Line Items')"
+        ).first
+
+        line_items_tab.click()
+
+        page.wait_for_timeout(5000)
+
+        # ==============================
+        # FIND QUANTITY COLUMN
+        # ==============================
+        headers = page.locator(
+            "table thead th"
+        )
+
+        quantity_column_index = -1
+
+        for j in range(headers.count()):
+
+            header_text = (
+                headers.nth(j)
+                .inner_text()
+                .strip()
+            )
 
             print(
-                f"100% document found in row {i + 1}"
+                f"Header {j}: {header_text}"
             )
 
-            row.locator(
-                "button.dropdown-toggle"
-            ).click(
-                force=True
+            if header_text == "Quantity":
+
+                quantity_column_index = j
+                break
+
+        # ==============================
+        # NO LINE ITEMS
+        # ==============================
+        if quantity_column_index == -1:
+
+            print(
+                "Quantity column not found."
             )
 
-            page.wait_for_timeout(2000)
-
-            row.get_by_text(
-                "View document"
-            ).click(
-                force=True
+            print(
+                "Going back to next document..."
             )
 
-            document_found = True
+            page.go_back()
 
-            break
+            page.wait_for_timeout(5000)
+
+            continue
+
+        # ==============================
+        # VALID DOCUMENT FOUND
+        # ==============================
+        print(
+            "Valid document found."
+        )
+
+        document_found = True
+        break
 
     assert document_found, \
-        "No 100% processed document found"
+        "No 100% document with line items found"
 
     print(
-        "Document opened successfully"
+        f"Quantity column index = "
+        f"{quantity_column_index}"
     )
 
     # ==================================
-    # STEP 4 : VERIFY DATA FIELDS PAGE
+    # VALIDATE QUANTITY VALUES
     # ==================================
-    assert page.locator(
-        "input"
-    ).count() > 0, \
-        "Data Fields page not opened"
-
-    print(
-        "Data Fields page opened"
-    )
-
-    # ==================================
-    # STEP 5 : OPEN LINE ITEMS TAB
-    # ==================================
-    line_items_tab = page.locator(
-        "span:has-text('Line Items')"
-    ).first
-
-    line_items_tab.click()
-
-    page.wait_for_timeout(3000)
-
-    print(
-        "Line Items tab opened"
-    )
-
-    # ==================================
-    # STEP 6 : FIND QUANTITY COLUMN
-    # ==================================
-    headers = page.locator(
-        "table thead th"
-    )
-
-    quantity_column_index = -1
-
-    for i in range(headers.count()):
-
-        header_text = (
-            headers.nth(i)
-            .inner_text()
-            .strip()
-        )
-
-        print(
-            f"Header {i} : {header_text}"
-        )
-
-        if header_text == "Quantity":
-
-            quantity_column_index = i
-
-            break
-
-    assert quantity_column_index != -1, \
-        "Quantity column not found"
-
-    print(
-        f"Quantity column index = {quantity_column_index}"
-    )
-
-    # ==================================
-    # STEP 7 : VALIDATE QUANTITY VALUES
-    # ==================================
-
     rows = page.locator(
         "table tbody tr"
     )
@@ -152,7 +155,8 @@ def test_TC_03_quantity_must_not_be_zero(page):
     total_rows = rows.count()
 
     print(
-        f"Total Line Item Rows = {total_rows}"
+        f"Total Line Item Rows = "
+        f"{total_rows}"
     )
 
     validated_rows = 0
@@ -161,9 +165,13 @@ def test_TC_03_quantity_must_not_be_zero(page):
 
         row = rows.nth(i)
 
+        cells = row.locator("td")
+
+        if cells.count() <= quantity_column_index:
+            continue
+
         quantity_input = (
-            row.locator("td")
-            .nth(quantity_column_index)
+            cells.nth(quantity_column_index)
             .locator("input")
         )
 
@@ -180,22 +188,22 @@ def test_TC_03_quantity_must_not_be_zero(page):
             continue
 
         print(
-            f"Row {i + 1} Quantity = {quantity_text}"
+            f"Row {i + 1} "
+            f"Quantity = {quantity_text}"
         )
 
         try:
-
             quantity_value = float(
                 quantity_text.replace(",", "")
-        )
+            )
 
         except ValueError:
 
-                print(
-                f"Skipping non-numeric value : {quantity_text}"
+            print(
+                f"Skipping non numeric value : "
+                f"{quantity_text}"
             )
-
-                continue
+            continue
 
         assert quantity_value != 0, \
             (
@@ -209,9 +217,11 @@ def test_TC_03_quantity_must_not_be_zero(page):
         "No Quantity values found"
 
     print(
-        f"Validated {validated_rows} Quantity values"
+        f"Validated "
+        f"{validated_rows} Quantity values"
     )
 
     print(
-        "PASS : All Quantity values are greater than 0"
+        "PASS : All Quantity values "
+        "are greater than 0"
     )

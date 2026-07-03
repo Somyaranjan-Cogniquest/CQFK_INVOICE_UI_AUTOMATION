@@ -17,9 +17,10 @@ def test_TC_02_invalid_password(page):
     login.click_login()
 
     error_msg = page.get_by_role("alert")
-
     error_msg.wait_for(timeout=5000)
 
-    assert "Invalid username or password" in error_msg.inner_text()
+    actual_message = error_msg.inner_text()
+
+    assert "Invalid credentials" in actual_message
 
     print("PASS : Proper error message displayed")

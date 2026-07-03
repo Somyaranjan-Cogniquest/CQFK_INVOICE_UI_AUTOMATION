@@ -5,6 +5,7 @@ from pages.dashboard_page import DashboardPage
 
 import pytest
 
+
 @pytest.mark.smoke
 @pytest.mark.regression
 def test_TC_45_verify_data_fields_page_load(page):
@@ -38,7 +39,8 @@ def test_TC_45_verify_data_fields_page_load(page):
 
     print(f"Total Rows Found: {row_count}")
 
-    assert row_count > 0, "No rows found in Processing Dashboard"
+    assert row_count > 0, \
+        "No rows found in Processing Dashboard"
 
     current_url = page.url
     document_clicked = False
@@ -48,19 +50,31 @@ def test_TC_45_verify_data_fields_page_load(page):
         row = rows.nth(i)
 
         try:
-            percentage = row.locator("div.sc-pyfCe").first.text_content().strip()
+            row_text = row.inner_text()
 
-            print(f"Row {i+1} Processing: {percentage}")
+            print(f"\nRow {i+1}:")
+            print(row_text)
 
-            if percentage == "100%":
+            if "100%" in row_text:
 
-                print(f"100% Processed Document Found in Row {i+1}")
+                print(
+                    f"100% Processed Document Found "
+                    f"in Row {i+1}"
+                )
 
-                document = row.locator("div[docid]").first
+                document = row.locator(
+                    "div[docid]"
+                ).first
 
-                document_name = document.text_content()
+                document_name = (
+                    document.text_content()
+                    .strip()
+                )
 
-                print("Opening Document:", document_name)
+                print(
+                    "Opening Document:",
+                    document_name
+                )
 
                 document.scroll_into_view_if_needed()
 
@@ -69,13 +83,15 @@ def test_TC_45_verify_data_fields_page_load(page):
                 document.click(force=True)
 
                 document_clicked = True
-
                 break
 
         except Exception as e:
-            print(f"Skipping row {i+1}: {e}")
+            print(
+                f"Skipping row {i+1}: {e}"
+            )
 
-    assert document_clicked, "No document with 100% processing found"
+    assert document_clicked, \
+        "No document with 100% processing found"
 
     # ==========================
     # VERIFY DATA FIELDS PAGE OPENED

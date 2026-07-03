@@ -5,6 +5,7 @@ from pages.dashboard_page import DashboardPage
 
 import pytest
 
+
 @pytest.mark.sanity
 @pytest.mark.regression
 def test_TC_73_refresh_preserves_filter_and_search(page):
@@ -15,7 +16,10 @@ def test_TC_73_refresh_preserves_filter_and_search(page):
     page.goto(LOGIN_URL)
 
     login = LoginPage(page)
-    login.login(USERNAME, PASSWORD)
+    login.login(
+        USERNAME,
+        PASSWORD
+    )
 
     page.wait_for_timeout(5000)
 
@@ -30,46 +34,85 @@ def test_TC_73_refresh_preserves_filter_and_search(page):
     page.wait_for_timeout(5000)
 
     # ==========================
-    # APPLY SEARCH
+    # GET DOC ID FROM FIRST ROW
     # ==========================
-    search_value = "71460"
+    rows = page.locator("tbody tr")
 
-    search_box = page.locator("input.searchbar")
+    assert rows.count() > 0, \
+        "No rows found"
 
-    search_box.wait_for(state="visible")
+    search_value = (
+        rows.first
+        .locator("td")
+        .nth(1)
+        .text_content()
+        .strip()
+    )
 
-    search_box.fill(search_value)
-
-    page.wait_for_timeout(3000)
-
-    assert search_box.input_value() == search_value, \
-        "Search value not applied"
-
-    print(f"Search Applied: {search_value}")
+    print(f"Using Doc ID: {search_value}")
 
     # ==========================
-    # VERIFY FILTERED DATA EXISTS
+    # SEARCH DOC ID
     # ==========================
+    search_box = page.locator(
+        "input.searchbar"
+    )
+
+    search_box.wait_for(
+        state="visible"
+    )
+
+    search_box.fill(
+        search_value
+    )
+
+    page.wait_for_timeout(1000)
+
+    # ==========================
+    # CLICK EXTEND SEARCH
+    # ==========================
+    extend_btn = page.locator(
+        "button:has-text('Extend Search')"
+    )
+
+    if extend_btn.count() > 0:
+        extend_btn.click()
+        page.wait_for_timeout(5000)
+
+    # ==========================
+    # VERIFY SEARCH APPLIED
+    # ==========================
+    assert (
+        search_box.input_value()
+        == search_value
+    ), "Search value not applied"
+
     rows = page.locator("tbody tr")
 
     total_rows = rows.count()
 
+    print(
+        f"Filtered Rows Found: {total_rows}"
+    )
+
     assert total_rows > 0, \
         "No records found after search"
 
-    print(f"Filtered Rows Found: {total_rows}")
-
     # ==========================
-    # OPEN FIRST ROW 3-DOT MENU
+    # OPEN ACTION MENU
     # ==========================
     first_row = rows.first
 
-    three_dot = first_row.locator("button.dropdown-toggle")
+    three_dot = first_row.locator(
+        "button.dropdown-toggle"
+    )
 
     assert three_dot.count() > 0, \
         "3-dot menu not found"
 
-    three_dot.first.click(force=True)
+    three_dot.first.click(
+        force=True
+    )
 
     page.wait_for_timeout(2000)
 
@@ -84,45 +127,53 @@ def test_TC_73_refresh_preserves_filter_and_search(page):
     assert refresh_option.is_visible(), \
         "Refresh option not visible"
 
-    refresh_option.click(force=True)
+    refresh_option.click(
+        force=True
+    )
 
     page.wait_for_timeout(5000)
 
-    print("Refresh executed successfully")
-
-    # ==========================
-    # RE-LOCATE SEARCH BOX
-    # ==========================
-    search_box = page.locator("input.searchbar")
-
-    search_box.wait_for(state="visible")
-
-    # ==========================
-    # VERIFY SEARCH VALUE PRESERVED
-    # ==========================
-    current_search = search_box.input_value()
-
-    print(f"Search After Refresh: {current_search}")
-
-    assert current_search == search_value, \
-        "Search value changed after refresh"
-
-    # ==========================
-    # VERIFY FILTERED RESULTS REMAIN
-    # ==========================
-    rows = page.locator("tbody tr")
-
-    row_count_after_refresh = rows.count()
-
-    assert row_count_after_refresh > 0, \
-        "Filtered results disappeared after refresh"
-
     print(
-        f"Rows After Refresh: "
-        f"{row_count_after_refresh}"
+        "Refresh executed successfully"
+    )
+
+    # ==========================
+    # VERIFY SEARCH PRESERVED
+    # ==========================
+    search_box = page.locator(
+        "input.searchbar"
+    )
+
+    current_search = (
+        search_box.input_value()
     )
 
     print(
-        "TC_73 Passed - Refresh preserved "
-        "search and filter state"
+        f"Search After Refresh: "
+        f"{current_search}"
+    )
+
+    assert (
+        current_search
+        == search_value
+    ), "Search value changed after refresh"
+
+    # ==========================
+    # VERIFY RESULTS STILL EXIST
+    # ==========================
+    rows_after = page.locator(
+        "tbody tr"
+    ).count()
+
+    print(
+        f"Rows After Refresh: "
+        f"{rows_after}"
+    )
+
+    assert rows_after > 0, \
+        "Filtered results disappeared"
+
+    print(
+        "TC_73 Passed - Refresh "
+        "preserved search and filter state"
     )

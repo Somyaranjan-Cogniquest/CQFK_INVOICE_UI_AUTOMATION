@@ -5,6 +5,7 @@ from pages.dashboard_page import DashboardPage
 
 import pytest
 
+
 @pytest.mark.sanity
 @pytest.mark.regression
 def test_TC_75_action_menu_on_filtered_results(page):
@@ -15,7 +16,10 @@ def test_TC_75_action_menu_on_filtered_results(page):
     page.goto(LOGIN_URL)
 
     login = LoginPage(page)
-    login.login(USERNAME, PASSWORD)
+    login.login(
+        USERNAME,
+        PASSWORD
+    )
 
     page.wait_for_timeout(5000)
 
@@ -30,21 +34,42 @@ def test_TC_75_action_menu_on_filtered_results(page):
     page.wait_for_timeout(5000)
 
     # ==========================
-    # APPLY SEARCH AS FILTER
+    # SEARCH DOC ID
     # ==========================
-    search_box = page.locator("input.searchbar")
+    search_box = page.locator(
+        "input.searchbar"
+    )
 
-    search_box.wait_for(state="visible")
+    search_box.wait_for(
+        state="visible"
+    )
 
     search_box.fill("71460")
 
-    page.wait_for_timeout(3000)
+    page.wait_for_timeout(1000)
 
-    rows = page.locator("tbody tr")
+    # ==========================
+    # CLICK EXTENDED SEARCH
+    # ==========================
+    page.get_by_text(
+        "Extend Search",
+        exact=False
+    ).click()
+
+    page.wait_for_timeout(5000)
+
+    # ==========================
+    # VERIFY FILTERED RECORD
+    # ==========================
+    rows = page.locator(
+        "tbody tr"
+    )
 
     filtered_count = rows.count()
 
-    print(f"Filtered Rows: {filtered_count}")
+    print(
+        f"Filtered Rows: {filtered_count}"
+    )
 
     assert filtered_count > 0, \
         "No filtered records found"
@@ -61,12 +86,14 @@ def test_TC_75_action_menu_on_filtered_results(page):
     assert three_dot.count() > 0, \
         "3-dot menu not found"
 
-    three_dot.first.click(force=True)
+    three_dot.first.click(
+        force=True
+    )
 
     page.wait_for_timeout(2000)
 
     # ==========================
-    # VERIFY MENU OPTIONS
+    # VERIFY REFRESH OPTION
     # ==========================
     refresh_option = page.get_by_text(
         "Refresh",
@@ -79,24 +106,27 @@ def test_TC_75_action_menu_on_filtered_results(page):
     # ==========================
     # CLICK REFRESH
     # ==========================
-    refresh_option.click(force=True)
+    refresh_option.click(
+        force=True
+    )
 
     page.wait_for_timeout(5000)
 
     # ==========================
-    # VERIFY FILTER STILL EXISTS
+    # VERIFY SEARCH RETAINED
     # ==========================
     current_search = search_box.input_value()
 
     assert current_search == "71460", \
-        "Filter/Search lost after action"
+        "Filter/Search lost after refresh"
 
-    rows_after = page.locator("tbody tr").count()
+    rows_after = page.locator(
+        "tbody tr"
+    ).count()
 
     assert rows_after > 0, \
         "Filtered rows disappeared"
 
     print(
-        "TC_75 Passed - Action menu works "
-        "on filtered results"
+        "TC_75 Passed - Action menu works on filtered results"
     )
